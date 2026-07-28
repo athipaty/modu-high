@@ -10,9 +10,9 @@ interface DrawerMenuProps {
 export default function DrawerMenu({ open, onClose, currentView, onNavigate }: DrawerMenuProps) {
   if (!open) return null
 
-  const items: { id: ViewId; icon: string; label: string }[] = [
-    { id: 'recipes', icon: '🍳', label: 'Recipes' },
-    { id: 'ingredients', icon: '🧂', label: 'Ingredients' },
+  const items: { id: ViewId; label: string }[] = [
+    { id: 'recipes', label: 'Recipes' },
+    { id: 'ingredients', label: 'Ingredients' },
   ]
 
   return (
@@ -39,7 +39,6 @@ export default function DrawerMenu({ open, onClose, currentView, onNavigate }: D
                   : 'text-gray-300 hover:bg-gray-700'
               }`}
             >
-              <span className="text-xl">{item.icon}</span>
               {item.label}
             </button>
           ))}
