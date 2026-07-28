@@ -1,5 +1,5 @@
 import axios from 'axios'
-import type { Recipe, RecipeDraft, Ingredient } from '../types/recipe'
+import type { Recipe, RecipeDraft, Ingredient, IngredientDraft } from '../types/recipe'
 
 const BASE = import.meta.env.VITE_API_URL || '/api/modu-high'
 
@@ -25,19 +25,18 @@ export async function fetchIngredients(): Promise<Ingredient[]> {
   return data
 }
 
-export async function saveIngredient(ingredient: Partial<Ingredient>): Promise<Ingredient> {
+export async function createIngredient(ingredient: IngredientDraft): Promise<Ingredient> {
   const { data } = await api.post('/ingredients', ingredient)
   return data
 }
 
-export async function fetchInventoryFilter(): Promise<string[]> {
-  const { data } = await api.get('/inventory-filter')
+export async function updateIngredient(id: string, ingredient: IngredientDraft): Promise<Ingredient> {
+  const { data } = await api.put(`/ingredients/${id}`, ingredient)
   return data
 }
 
-export async function saveInventoryFilter(excluded: string[]): Promise<string[]> {
-  const { data } = await api.put('/inventory-filter', { excluded })
-  return data
+export async function deleteIngredient(id: string): Promise<void> {
+  await api.delete(`/ingredients/${id}`)
 }
 
 export async function uploadImage(file: File): Promise<string> {

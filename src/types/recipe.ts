@@ -12,7 +12,6 @@ export interface Recipe {
   ingredients: RecipeIngredient[]
   method: string
   active: boolean
-  type: 'sale' | 'staff'
   createdAt?: string
   updatedAt?: string
 }
@@ -22,10 +21,13 @@ export type RecipeDraft = Omit<Recipe, '_id' | 'createdAt' | 'updatedAt'> & { _i
 export interface Ingredient {
   _id: string
   name: string
-  price: number
-  weight: { value: number; unit: string }
   image: string
-  stock: { value: number; unit: string }
+  qty: number
+  unit: string
+  price: number
+  supplier: string
   createdAt?: string
   updatedAt?: string
 }
+
+export type IngredientDraft = Omit<Ingredient, '_id' | 'createdAt' | 'updatedAt'> & { _id?: string }

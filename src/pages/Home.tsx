@@ -6,12 +6,11 @@ import EditRecipeForm from '../components/EditRecipeForm'
 import FullImageModal from '../components/FullImageModal'
 import ImageWithLoader from '../components/ImageWithLoader'
 import DrawerMenu, { type ViewId } from '../components/DrawerMenu'
-import InventoryList from '../components/InventoryList'
-import IngredientEditModal from '../components/IngredientEditModal'
+import IngredientsPage from './IngredientsPage'
 
 import { fmt, valid, strip0 } from '../utils/format'
 import { calculateIngredientPrice } from '../utils/priceResolver'
-import { fetchRecipes, updateRecipe, createRecipe, fetchIngredients, saveIngredient } from '../services/api'
+import { fetchRecipes, updateRecipe, createRecipe, fetchIngredients } from '../services/api'
 import type { Recipe, RecipeDraft, Ingredient } from '../types/recipe'
 
 interface HistoryEntry {
@@ -36,9 +35,7 @@ export default function Home() {
   const [addMode, setAddMode] = useState(false)
   const [showDrawer, setShowDrawer] = useState(false)
   const [currentView, setCurrentView] = useState<ViewId>('recipes')
-  const [recipeTab, setRecipeTab] = useState<'sale' | 'staff'>('sale')
   const [ingredients, setIngredients] = useState<Ingredient[]>([])
-  const [editingIngredient, setEditingIngredient] = useState<Ingredient | null>(null)
 
   /* ---------------------- load recipes ---------------------- */
   useEffect(() => {
@@ -153,15 +150,6 @@ export default function Home() {
     }
   }
 
-  const onSaveIngredient = async (draft: Partial<Ingredient>) => {
-    const saved = await saveIngredient(draft)
-    setIngredients((prev) => {
-      const idx = prev.findIndex((i) => i._id === saved._id)
-      return idx >= 0 ? prev.map((i) => (i._id === saved._id ? saved : i)) : [...prev, saved]
-    })
-    setEditingIngredient(null)
-  }
-
   /* ---------------------- drawer navigation ---------------------- */
   const navigateTo = (view: ViewId) => {
     setCurrentView(view)
@@ -206,7 +194,6 @@ export default function Home() {
   const lcQuery = query.toLowerCase().trim()
 
   const visibleRecipes = [...recipes]
-    .filter((r) => (r.type || 'sale') === recipeTab)
     .filter((r) => (lcQuery ? r.name.toLowerCase().includes(lcQuery) : true))
     .sort((a, b) => a.name.localeCompare(b.name))
 
@@ -253,7 +240,7 @@ export default function Home() {
       <div className="max-w-md w-full">
         <SearchBar
           query={query}
-          placeholder={currentView === 'prices' ? 'Search ingredients...' : 'Search recipes...'}
+          placeholder={currentView === 'ingredients' ? 'Search ingredients...' : 'Search recipes...'}
           showBack={currentView === 'recipes' && !!selectedRecipe && !editMode && !addMode}
           onBack={goBack}
           onChange={(v) => {
@@ -268,47 +255,20 @@ export default function Home() {
           onAdd={currentView === 'recipes' && !selectedRecipe && !addMode ? () => setAddMode(true) : undefined}
         />
 
-        {/* Ingredient prices view */}
-        {currentView === 'prices' && (
-          <InventoryList
-            activeRecipes={recipes.filter((r) => r.active)}
-            ingredients={ingredients}
-            onImage={setFullImage}
-            onSaveIngredient={onSaveIngredient}
-          />
+        {/* Ingredients view */}
+        {currentView === 'ingredients' && (
+          <IngredientsPage query={query} onImage={setFullImage} />
         )}
 
         {/* Add new recipe form */}
         {currentView === 'recipes' && addMode && (
           <EditRecipeForm
-            recipe={{ name: '', image: '', ingredients: [], method: '', active: false, type: recipeTab }}
+            recipe={{ name: '', image: '', ingredients: [], method: '', active: false }}
             onSave={saveRecipe}
             onCancel={() => setAddMode(false)}
             knownImages={knownImages}
             knownNames={knownNames}
           />
-        )}
-
-        {/* Menu / Staff meal tabs */}
-        {currentView === 'recipes' && !selectedRecipe && !addMode && (
-          <div className="flex gap-2 mt-2 mb-1">
-            {[
-              { key: 'sale' as const, label: 'Menu' },
-              { key: 'staff' as const, label: 'Staff Meal' },
-            ].map((tab) => (
-              <button
-                key={tab.key}
-                onClick={() => setRecipeTab(tab.key)}
-                className={`flex-1 py-2 rounded-lg text-sm font-semibold border transition-colors ${
-                  recipeTab === tab.key
-                    ? 'bg-green-100 text-green-700 border-green-300'
-                    : 'bg-white text-gray-400 border-gray-300'
-                }`}
-              >
-                {tab.label}
-              </button>
-            ))}
-          </div>
         )}
 
         {/* Recipe grid */}
@@ -359,7 +319,7 @@ export default function Home() {
               <p className="text-center text-gray-400 text-sm mt-10">
                 {query
                   ? `No recipes found for "${query}"`
-                  : `No ${recipeTab === 'sale' ? 'menu' : 'staff meal'} recipes yet`}
+                  : 'No recipes yet'}
               </p>
             )}
           </div>
@@ -401,14 +361,6 @@ export default function Home() {
           <FullImageModal src={fullImage} onClose={() => setFullImage(null)} />
         )}
       </div>
-
-      {editingIngredient && (
-        <IngredientEditModal
-          ingredient={editingIngredient}
-          onSave={onSaveIngredient}
-          onCancel={() => setEditingIngredient(null)}
-        />
-      )}
 
       <DrawerMenu
         open={showDrawer}

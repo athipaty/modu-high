@@ -1,4 +1,4 @@
-export type ViewId = 'recipes' | 'prices'
+export type ViewId = 'recipes' | 'ingredients'
 
 interface DrawerMenuProps {
   open: boolean
@@ -12,7 +12,7 @@ export default function DrawerMenu({ open, onClose, currentView, onNavigate }: D
 
   const items: { id: ViewId; icon: string; label: string }[] = [
     { id: 'recipes', icon: '🍳', label: 'Recipes' },
-    { id: 'prices', icon: '💰', label: 'Inventory' },
+    { id: 'ingredients', icon: '🧂', label: 'Ingredients' },
   ]
 
   return (

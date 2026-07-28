@@ -32,14 +32,14 @@ export function calculateIngredientPrice({
   const product = ingredients.find((i) => i.name.toLowerCase().trim() === key)
 
   // 1. Raw product pricing
-  if (product?.price && product?.weight?.value) {
-    const baseWeight = product.weight.value
-    const baseUnit = product.weight.unit
+  if (product?.price && product?.qty) {
+    const baseQty = product.qty
+    const baseUnit = product.unit
 
     const convertedQty = convertUnit(usedQty, usedUnit, baseUnit)
     if (convertedQty === null) return 0
 
-    return (convertedQty / baseWeight) * product.price
+    return (convertedQty / baseQty) * product.price
   }
 
   // 2. Nested recipe pricing (this "ingredient" is itself a sub-recipe/prep item)

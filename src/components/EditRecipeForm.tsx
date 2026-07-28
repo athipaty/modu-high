@@ -17,7 +17,6 @@ interface Draft {
   ingredients: DraftIngredient[]
   method: string
   active: boolean
-  type: 'sale' | 'staff'
 }
 
 interface EditRecipeFormProps {
@@ -35,7 +34,6 @@ export default function EditRecipeForm({ recipe, onSave, onCancel, knownImages =
     const r = JSON.parse(JSON.stringify(recipe)) as RecipeDraft
     return {
       ...r,
-      type: r.type || 'sale',
       ingredients: r.ingredients.map((ing) => ({ ...ing, quantity: String(ing.quantity ?? '') })),
     }
   })
@@ -183,27 +181,6 @@ export default function EditRecipeForm({ recipe, onSave, onCancel, knownImages =
           className="hidden"
           onChange={handleRecipeImgChange}
         />
-      </div>
-
-      {/* Menu / Staff meal type */}
-      <div className="flex gap-2 mb-3">
-        {[
-          { key: 'sale' as const, label: 'Menu' },
-          { key: 'staff' as const, label: 'Staff Meal' },
-        ].map((opt) => (
-          <button
-            key={opt.key}
-            type="button"
-            onClick={() => updateField('type', opt.key)}
-            className={`flex-1 py-2 rounded-lg text-sm font-semibold border transition-colors ${
-              draft.type === opt.key
-                ? 'bg-green-100 text-green-700 border-green-300'
-                : 'bg-white text-gray-400 border-gray-300'
-            }`}
-          >
-            {opt.label}
-          </button>
-        ))}
       </div>
 
       {/* Ingredients table */}
