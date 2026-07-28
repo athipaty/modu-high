@@ -75,7 +75,7 @@ export default function IngredientRow({
               price > 0 ? 'text-green-400' : 'text-gray-500'
             }`}
           >
-            ${price.toFixed(2)}
+            S${price.toFixed(2)}
           </span>
         </div>
       </td>

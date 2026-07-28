@@ -105,7 +105,7 @@ export default function IngredientsPage({ query, onImage }: IngredientsPageProps
                 </p>
               </div>
               <span className={`text-xs font-semibold shrink-0 ${ing.price > 0 ? 'text-green-400' : 'text-gray-500'}`}>
-                ${ing.price.toFixed(2)}
+                S${ing.price.toFixed(2)}
               </span>
             </div>
           ))}

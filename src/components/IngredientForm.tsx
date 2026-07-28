@@ -160,7 +160,7 @@ export default function IngredientForm({ ingredient, onSave, onDelete, onCancel 
       {/* Price & supplier */}
       <div className="flex gap-3 mb-3 bg-gray-800 border border-gray-700 rounded-lg p-3">
         <div className="flex-1">
-          <label className="text-xs text-gray-400 mb-1 block">Price (฿)</label>
+          <label className="text-xs text-gray-400 mb-1 block">Price (SGD)</label>
           <input
             type="number"
             value={draft.price}

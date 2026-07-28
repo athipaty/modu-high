@@ -104,7 +104,7 @@ export default function RecipeDetail({
             <td className="border border-gray-600 px-2 py-2">
               <div className="flex flex-col items-end gap-[2px]">
                 <span className="text-sm text-gray-200">{totalQty.toLocaleString()} g</span>
-                <span className="text-[11px] text-green-400">${totalPrice.toFixed(2)}</span>
+                <span className="text-[11px] text-green-400">S${totalPrice.toFixed(2)}</span>
               </div>
             </td>
           </tr>
