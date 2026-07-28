@@ -1,43 +1,29 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import ImageWithLoader from '../components/ImageWithLoader'
 import IngredientForm from '../components/IngredientForm'
-import { fetchIngredients, createIngredient, updateIngredient, deleteIngredient } from '../services/api'
 import type { Ingredient, IngredientDraft } from '../types/recipe'
 
 interface IngredientsPageProps {
   query: string
   onImage: (url: string) => void
+  ingredients: Ingredient[]
+  onSave: (draft: IngredientDraft) => Promise<Ingredient>
+  onDelete: (id: string) => Promise<void>
 }
 
-export default function IngredientsPage({ query, onImage }: IngredientsPageProps) {
-  const [ingredients, setIngredients] = useState<Ingredient[]>([])
-  const [loading, setLoading] = useState(true)
+export default function IngredientsPage({ query, onImage, ingredients, onSave, onDelete }: IngredientsPageProps) {
   const [addMode, setAddMode] = useState(false)
   const [editing, setEditing] = useState<Ingredient | null>(null)
 
-  useEffect(() => {
-    fetchIngredients()
-      .then(setIngredients)
-      .catch(() => setIngredients([]))
-      .finally(() => setLoading(false))
-  }, [])
-
   const handleSave = async (draft: IngredientDraft) => {
-    if (draft._id) {
-      const saved = await updateIngredient(draft._id, draft)
-      setIngredients((prev) => prev.map((i) => (i._id === saved._id ? saved : i)))
-      setEditing(null)
-    } else {
-      const saved = await createIngredient(draft)
-      setIngredients((prev) => [...prev, saved])
-      setAddMode(false)
-    }
+    await onSave(draft)
+    setAddMode(false)
+    setEditing(null)
   }
 
   const handleDelete = async () => {
     if (!editing) return
-    await deleteIngredient(editing._id)
-    setIngredients((prev) => prev.filter((i) => i._id !== editing._id))
+    await onDelete(editing._id)
     setEditing(null)
   }
 
@@ -76,9 +62,7 @@ export default function IngredientsPage({ query, onImage }: IngredientsPageProps
         + Add Ingredient
       </button>
 
-      {loading ? (
-        <p className="text-center text-gray-400 text-sm mt-10">Loading ingredients...</p>
-      ) : visible.length === 0 ? (
+      {visible.length === 0 ? (
         <p className="text-center text-gray-400 text-sm mt-10">
           {query ? `No ingredients found for "${query}"` : 'No ingredients yet'}
         </p>

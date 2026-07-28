@@ -10,8 +10,11 @@ import IngredientsPage from './IngredientsPage'
 
 import { fmt, valid, strip0 } from '../utils/format'
 import { calculateIngredientPrice } from '../utils/priceResolver'
-import { fetchRecipes, updateRecipe, createRecipe, fetchIngredients } from '../services/api'
-import type { Recipe, RecipeDraft, Ingredient } from '../types/recipe'
+import {
+  fetchRecipes, updateRecipe, createRecipe,
+  fetchIngredients, createIngredient, updateIngredient, deleteIngredient,
+} from '../services/api'
+import type { Recipe, RecipeDraft, Ingredient, IngredientDraft } from '../types/recipe'
 
 interface HistoryEntry {
   recipe: Recipe | null
@@ -190,6 +193,27 @@ export default function Home() {
     }
   }
 
+  /* ---------------------- ingredient master list CRUD ----------------------
+     Owned here (not inside IngredientsPage) so edits — a new photo, a price change —
+     immediately reach the recipe form's knownImages/knownUnits/knownNames lookups below,
+     instead of living in a second, disconnected copy of the ingredient list. */
+  const saveIngredientRecord = async (draft: IngredientDraft) => {
+    if (draft._id) {
+      const saved = await updateIngredient(draft._id, draft)
+      setIngredients((prev) => prev.map((i) => (i._id === saved._id ? saved : i)))
+      return saved
+    } else {
+      const saved = await createIngredient(draft)
+      setIngredients((prev) => [...prev, saved])
+      return saved
+    }
+  }
+
+  const deleteIngredientRecord = async (id: string) => {
+    await deleteIngredient(id)
+    setIngredients((prev) => prev.filter((i) => i._id !== id))
+  }
+
   /* ---------------------- filtering ---------------------- */
   const lcQuery = query.toLowerCase().trim()
 
@@ -265,7 +289,13 @@ export default function Home() {
 
         {/* Ingredients view */}
         {currentView === 'ingredients' && (
-          <IngredientsPage query={query} onImage={setFullImage} />
+          <IngredientsPage
+            query={query}
+            onImage={setFullImage}
+            ingredients={ingredients}
+            onSave={saveIngredientRecord}
+            onDelete={deleteIngredientRecord}
+          />
         )}
 
         {/* Add new recipe form */}
