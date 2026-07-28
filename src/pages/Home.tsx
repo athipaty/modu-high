@@ -197,33 +197,22 @@ export default function Home() {
     .filter((r) => (lcQuery ? r.name.toLowerCase().includes(lcQuery) : true))
     .sort((a, b) => a.name.localeCompare(b.name))
 
-  /* ---------------------- known ingredient images ---------------------- */
+  /* ---------------------- master ingredient list (name/image/unit lookup) ----------------------
+     Recipes can only use ingredients that already exist on the master Ingredients list — no
+     free-typing new ingredient names, images, or units into a recipe; those are all sourced
+     from the master record and only quantity-used is recipe-specific. */
   const knownImages: Record<string, string> = {}
+  const knownUnits: Record<string, string> = {}
   ingredients.forEach((ov) => {
     const key = ov.name?.toLowerCase().trim()
-    if (ov.image && key) knownImages[key] = ov.image
-  })
-  recipes.forEach((r) => {
-    r.ingredients?.forEach((ing) => {
-      const key = ing.item?.toLowerCase().trim()
-      if (ing.image && key && !knownImages[key]) knownImages[key] = ing.image
-    })
+    if (!key) return
+    if (ov.image) knownImages[key] = ov.image
+    if (ov.unit) knownUnits[key] = ov.unit
   })
 
-  /* ---------------------- known ingredient names ---------------------- */
-  const knownNamesSeen = new Set<string>()
-  const knownNames: string[] = []
-  ingredients.forEach((ov) => {
-    const key = ov.name?.toLowerCase().trim()
-    if (key && !knownNamesSeen.has(key)) { knownNamesSeen.add(key); knownNames.push(ov.name) }
-  })
-  recipes.forEach((r) => {
-    r.ingredients?.forEach((ing) => {
-      const key = ing.item?.toLowerCase().trim()
-      if (key && !knownNamesSeen.has(key)) { knownNamesSeen.add(key); knownNames.push(ing.item) }
-    })
-  })
-  knownNames.sort((a, b) => a.localeCompare(b))
+  const knownNames = [...ingredients]
+    .map((ov) => ov.name)
+    .sort((a, b) => a.localeCompare(b))
 
   const getPrice = (item: string, qty: number, unit: string) =>
     calculateIngredientPrice({
@@ -267,6 +256,7 @@ export default function Home() {
             onSave={saveRecipe}
             onCancel={() => setAddMode(false)}
             knownImages={knownImages}
+            knownUnits={knownUnits}
             knownNames={knownNames}
           />
         )}
@@ -338,6 +328,7 @@ export default function Home() {
                 onSave={saveRecipe}
                 onCancel={() => setEditMode(false)}
                 knownImages={knownImages}
+                knownUnits={knownUnits}
                 knownNames={knownNames}
               />
             ) : (

@@ -24,12 +24,13 @@ interface EditRecipeFormProps {
   onSave: (draft: RecipeDraft) => Promise<void>
   onCancel: () => void
   knownImages?: Record<string, string>
+  knownUnits?: Record<string, string>
   knownNames?: string[]
 }
 
 type Status = '' | 'uploading' | 'saving'
 
-export default function EditRecipeForm({ recipe, onSave, onCancel, knownImages = {}, knownNames = [] }: EditRecipeFormProps) {
+export default function EditRecipeForm({ recipe, onSave, onCancel, knownImages = {}, knownUnits = {}, knownNames = [] }: EditRecipeFormProps) {
   const [draft, setDraft] = useState<Draft>(() => {
     const r = JSON.parse(JSON.stringify(recipe)) as RecipeDraft
     return {
@@ -40,7 +41,6 @@ export default function EditRecipeForm({ recipe, onSave, onCancel, knownImages =
   const [status, setStatus] = useState<Status>('')
 
   const recipeImgRef = useRef<HTMLInputElement>(null)
-  const ingImgRefs = useRef<Record<number, HTMLInputElement | null>>({})
 
   function updateField<K extends keyof Draft>(field: K, value: Draft[K]) {
     setDraft((d) => ({ ...d, [field]: value }))
@@ -59,7 +59,7 @@ export default function EditRecipeForm({ recipe, onSave, onCancel, knownImages =
       ...d,
       ingredients: [
         ...d.ingredients,
-        { item: '', quantity: '', unit: 'g', image: '' },
+        { item: '', quantity: '', unit: '', image: '' },
       ],
     }))
 
@@ -69,11 +69,20 @@ export default function EditRecipeForm({ recipe, onSave, onCancel, knownImages =
       ingredients: d.ingredients.filter((_, idx) => idx !== i),
     }))
 
-  const onIngNameBlur = (i: number) => {
-    const ing = draft.ingredients[i]
-    if (ing.image) return // never overwrite an image already set
-    const match = knownImages[(ing.item || '').toLowerCase().trim()]
-    if (match) updateIng(i, 'image', match)
+  // Selecting an ingredient name pulls its image/unit straight from the master
+  // Ingredients list — neither is editable per-recipe, they always mirror master data.
+  const onIngNameChange = (i: number, name: string) => {
+    const key = name.toLowerCase().trim()
+    setDraft((d) => {
+      const ings = [...d.ingredients]
+      ings[i] = {
+        ...ings[i],
+        item: name,
+        image: knownImages[key] || '',
+        unit: knownUnits[key] || '',
+      }
+      return { ...d, ingredients: ings }
+    })
   }
 
   const handleRecipeImgChange = async (e: ChangeEvent<HTMLInputElement>) => {
@@ -92,23 +101,11 @@ export default function EditRecipeForm({ recipe, onSave, onCancel, knownImages =
     }
   }
 
-  const handleIngImgChange = async (e: ChangeEvent<HTMLInputElement>, i: number) => {
-    const file = e.target.files?.[0]
-    if (!file) return
-    setStatus('uploading')
-    try {
-      const url = await uploadImage(file)
-      updateIng(i, 'image', url)
-    } catch (err) {
-      const message = axios.isAxiosError(err) ? err.response?.data?.error : undefined
-      alert(`Upload failed: ${message || (err as Error).message}`)
-    } finally {
-      setStatus('')
-      e.target.value = ''
-    }
-  }
-
   const handleSave = async () => {
+    if (draft.ingredients.some((ing) => !ing.item)) {
+      alert('Please select an ingredient for every row, or remove empty rows.')
+      return
+    }
     setStatus('saving')
     try {
       const toSave: RecipeDraft = {
@@ -184,25 +181,22 @@ export default function EditRecipeForm({ recipe, onSave, onCancel, knownImages =
       </div>
 
       {/* Ingredients table */}
-      <table className="w-full border border-gray-700 rounded-lg overflow-hidden bg-gray-800 mb-3 text-sm">
-        <thead>
-          <tr className="bg-gray-700 text-xs">
-            <th className="px-2 py-2 border border-gray-600 text-left w-14 text-gray-200">Img</th>
-            <th className="px-2 py-2 border border-gray-600 text-left text-gray-200">Ingredient</th>
-            <th className="px-2 py-2 border border-gray-600 text-center w-16 text-gray-200">Qty</th>
-            <th className="px-2 py-2 border border-gray-600 text-center w-10 text-gray-200">Unit</th>
-            <th className="px-2 py-2 border border-gray-600 w-6"></th>
-          </tr>
-        </thead>
-        <tbody>
-          {draft.ingredients.map((ing, i) => (
-            <tr key={i} className="odd:bg-gray-800 even:bg-gray-800/60">
-              {/* Ingredient image */}
-              <td className="border border-gray-700 px-1 py-1">
-                <div
-                  className="relative w-12 h-12 cursor-pointer group/img"
-                  onClick={() => !busy && ingImgRefs.current[i]?.click()}
-                >
+      {draft.ingredients.length > 0 && (
+        <table className="w-full border border-gray-700 rounded-lg overflow-hidden bg-gray-800 mb-3 text-sm">
+          <thead>
+            <tr className="bg-gray-700 text-xs">
+              <th className="px-2 py-2 border border-gray-600 text-left w-14 text-gray-200">Img</th>
+              <th className="px-2 py-2 border border-gray-600 text-left text-gray-200">Ingredient</th>
+              <th className="px-2 py-2 border border-gray-600 text-center w-16 text-gray-200">Qty</th>
+              <th className="px-2 py-2 border border-gray-600 text-center w-10 text-gray-200">Unit</th>
+              <th className="px-2 py-2 border border-gray-600 w-6"></th>
+            </tr>
+          </thead>
+          <tbody>
+            {draft.ingredients.map((ing, i) => (
+              <tr key={i} className="odd:bg-gray-800 even:bg-gray-800/60">
+                {/* Ingredient image — sourced from the master ingredient, not editable here */}
+                <td className="border border-gray-700 px-1 py-1">
                   {ing.image ? (
                     <img
                       src={ing.image}
@@ -214,75 +208,62 @@ export default function EditRecipeForm({ recipe, onSave, onCancel, knownImages =
                       📷
                     </div>
                   )}
-                  <div className="absolute inset-0 bg-black/30 rounded opacity-0 group-hover/img:opacity-100 transition-opacity flex items-center justify-center pointer-events-none">
-                    <span className="text-white text-xs">📷</span>
-                  </div>
+                </td>
+
+                {/* Item name — must be picked from the master Ingredients list */}
+                <td className="border border-gray-700 px-1 py-1">
+                  <select
+                    value={ing.item}
+                    onChange={(e) => onIngNameChange(i, e.target.value)}
+                    className="w-full border border-gray-600 bg-gray-900 text-gray-100 rounded px-1 py-0.5 text-sm focus:ring-1 focus:ring-green-400 outline-none"
+                  >
+                    <option value="">Select ingredient...</option>
+                    {knownNames.map((name) => <option key={name} value={name}>{name}</option>)}
+                  </select>
+                </td>
+
+                {/* Qty — how much this recipe uses, the only per-recipe field */}
+                <td className="border border-gray-700 px-1 py-1">
                   <input
-                    ref={(el) => { ingImgRefs.current[i] = el }}
-                    type="file"
-                    accept="image/*"
-                    className="hidden"
-                    onChange={(e) => handleIngImgChange(e, i)}
+                    type="number"
+                    value={ing.quantity}
+                    onChange={(e) => updateIng(i, 'quantity', e.target.value)}
+                    className="w-full border border-gray-600 bg-gray-900 text-gray-100 rounded px-1 py-0.5 text-sm text-center focus:ring-1 focus:ring-green-400 outline-none"
                   />
-                </div>
-              </td>
+                </td>
 
-              {/* Item name */}
-              <td className="border border-gray-700 px-1 py-1">
-                <input
-                  value={ing.item}
-                  onChange={(e) => updateIng(i, 'item', e.target.value)}
-                  onBlur={() => onIngNameBlur(i)}
-                  autoComplete="off"
-                  list="known-ingredient-names"
-                  className="w-full border border-gray-600 bg-gray-900 text-gray-100 rounded px-1 py-0.5 text-sm focus:ring-1 focus:ring-green-400 outline-none"
-                />
-              </td>
+                {/* Unit — sourced from the master ingredient, not editable here */}
+                <td className="border border-gray-700 px-1 py-1 text-center text-xs text-gray-400">
+                  {ing.unit || '—'}
+                </td>
 
-              {/* Qty */}
-              <td className="border border-gray-700 px-1 py-1">
-                <input
-                  type="number"
-                  value={ing.quantity}
-                  onChange={(e) => updateIng(i, 'quantity', e.target.value)}
-                  className="w-full border border-gray-600 bg-gray-900 text-gray-100 rounded px-1 py-0.5 text-sm text-center focus:ring-1 focus:ring-green-400 outline-none"
-                />
-              </td>
+                {/* Delete */}
+                <td className="border border-gray-700 px-1 py-1 text-center">
+                  <button
+                    onClick={() => removeIng(i)}
+                    className="text-red-400 hover:text-red-300 text-xl leading-none"
+                  >
+                    ×
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
 
-              {/* Unit */}
-              <td className="border border-gray-700 px-1 py-1">
-                <input
-                  value={ing.unit}
-                  onChange={(e) => updateIng(i, 'unit', e.target.value)}
-                  autoComplete="off"
-                  className="w-full border border-gray-600 bg-gray-900 text-gray-100 rounded px-1 py-0.5 text-xs text-center focus:ring-1 focus:ring-green-400 outline-none"
-                />
-              </td>
-
-              {/* Delete */}
-              <td className="border border-gray-700 px-1 py-1 text-center">
-                <button
-                  onClick={() => removeIng(i)}
-                  className="text-red-400 hover:text-red-300 text-xl leading-none"
-                >
-                  ×
-                </button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-
-      <datalist id="known-ingredient-names">
-        {knownNames.map((name) => <option key={name} value={name} />)}
-      </datalist>
-
-      <button
-        onClick={addIng}
-        className="w-full border-2 border-dashed border-gray-600 text-gray-400 py-2 rounded-lg text-sm hover:border-gray-500 hover:text-gray-300 mb-3 transition-colors"
-      >
-        + Add Ingredient
-      </button>
+      {knownNames.length === 0 ? (
+        <p className="text-center text-gray-500 text-xs mb-3 px-2">
+          No ingredients on the master list yet — add some in the Ingredients tab first, then come back to build this recipe.
+        </p>
+      ) : (
+        <button
+          onClick={addIng}
+          className="w-full border-2 border-dashed border-gray-600 text-gray-400 py-2 rounded-lg text-sm hover:border-gray-500 hover:text-gray-300 mb-3 transition-colors"
+        >
+          + Add Ingredient
+        </button>
+      )}
 
       {/* Method */}
       <div className="bg-gray-800 border border-gray-700 rounded-lg p-4">
