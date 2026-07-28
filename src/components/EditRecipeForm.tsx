@@ -69,15 +69,32 @@ export default function EditRecipeForm({ recipe, onSave, onCancel, knownImages =
       ingredients: d.ingredients.filter((_, idx) => idx !== i),
     }))
 
-  // Selecting an ingredient name pulls its image/unit straight from the master
-  // Ingredients list — neither is editable per-recipe, they always mirror master data.
-  const onIngNameChange = (i: number, name: string) => {
-    const key = name.toLowerCase().trim()
+  // Typing is free-form (with datalist suggestions) since a ~100-item dropdown is hard to
+  // browse — but on blur we require an exact (case-insensitive) match against the master
+  // Ingredients list. A match pulls its image/unit straight from that master record (neither
+  // is editable per-recipe); anything that doesn't match gets rejected with an alert.
+  const nameByKey: Record<string, string> = {}
+  knownNames.forEach((n) => { nameByKey[n.toLowerCase().trim()] = n })
+
+  const onIngNameBlur = (i: number) => {
+    const typed = draft.ingredients[i].item
+    const key = typed.toLowerCase().trim()
+    if (!key) return
+    const canonical = nameByKey[key]
+    if (!canonical) {
+      alert(`"${typed}" is not on the ingredient master list. Please pick an existing ingredient, or add it in the Ingredients tab first.`)
+      setDraft((d) => {
+        const ings = [...d.ingredients]
+        ings[i] = { ...ings[i], item: '', image: '', unit: '' }
+        return { ...d, ingredients: ings }
+      })
+      return
+    }
     setDraft((d) => {
       const ings = [...d.ingredients]
       ings[i] = {
         ...ings[i],
-        item: name,
+        item: canonical,
         image: knownImages[key] || '',
         unit: knownUnits[key] || '',
       }
@@ -210,16 +227,18 @@ export default function EditRecipeForm({ recipe, onSave, onCancel, knownImages =
                   )}
                 </td>
 
-                {/* Item name — must be picked from the master Ingredients list */}
+                {/* Item name — free-typing with suggestions, but only an exact match against
+                    the master Ingredients list is accepted (validated/rejected on blur) */}
                 <td className="border border-gray-700 px-1 py-1">
-                  <select
+                  <input
                     value={ing.item}
-                    onChange={(e) => onIngNameChange(i, e.target.value)}
+                    onChange={(e) => updateIng(i, 'item', e.target.value)}
+                    onBlur={() => onIngNameBlur(i)}
+                    autoComplete="off"
+                    list="known-ingredient-names"
+                    placeholder="Type to search..."
                     className="w-full border border-gray-600 bg-gray-900 text-gray-100 rounded px-1 py-0.5 text-sm focus:ring-1 focus:ring-green-400 outline-none"
-                  >
-                    <option value="">Select ingredient...</option>
-                    {knownNames.map((name) => <option key={name} value={name}>{name}</option>)}
-                  </select>
+                  />
                 </td>
 
                 {/* Qty — how much this recipe uses, the only per-recipe field */}
@@ -251,6 +270,10 @@ export default function EditRecipeForm({ recipe, onSave, onCancel, knownImages =
           </tbody>
         </table>
       )}
+
+      <datalist id="known-ingredient-names">
+        {knownNames.map((name) => <option key={name} value={name} />)}
+      </datalist>
 
       {knownNames.length === 0 ? (
         <p className="text-center text-gray-500 text-xs mb-3 px-2">
