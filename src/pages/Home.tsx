@@ -11,7 +11,7 @@ import IngredientsPage from './IngredientsPage'
 import { fmt, valid, strip0 } from '../utils/format'
 import { calculateIngredientPrice } from '../utils/priceResolver'
 import {
-  fetchRecipes, updateRecipe, createRecipe,
+  fetchRecipes, updateRecipe, createRecipe, deleteRecipe,
   fetchIngredients, createIngredient, updateIngredient, deleteIngredient,
 } from '../services/api'
 import type { Recipe, RecipeDraft, Ingredient, IngredientDraft } from '../types/recipe'
@@ -174,6 +174,14 @@ export default function Home() {
       setSelectedRecipe(saved)
       setAddMode(false)
     }
+  }
+
+  const deleteRecipeRecord = async (id: string) => {
+    await deleteRecipe(id)
+    setRecipes((prev) => prev.filter((r) => r._id !== id))
+    setEditMode(false)
+    setSelectedRecipe(null)
+    setHistory([])
   }
 
   /* ---------------------- ingredient master list CRUD ----------------------
@@ -359,6 +367,7 @@ export default function Home() {
                 recipe={selectedRecipe}
                 onSave={saveRecipe}
                 onCancel={() => setEditMode(false)}
+                onDelete={deleteRecipeRecord}
                 knownImages={knownImages}
                 knownUnits={knownUnits}
                 knownNames={knownNames}

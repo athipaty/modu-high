@@ -22,14 +22,15 @@ interface EditRecipeFormProps {
   recipe: RecipeDraft
   onSave: (draft: RecipeDraft) => Promise<void>
   onCancel: () => void
+  onDelete?: (id: string) => Promise<void>
   knownImages?: Record<string, string>
   knownUnits?: Record<string, string>
   knownNames?: string[]
 }
 
-type Status = '' | 'uploading' | 'saving'
+type Status = '' | 'uploading' | 'saving' | 'deleting'
 
-export default function EditRecipeForm({ recipe, onSave, onCancel, knownImages = {}, knownUnits = {}, knownNames = [] }: EditRecipeFormProps) {
+export default function EditRecipeForm({ recipe, onSave, onCancel, onDelete, knownImages = {}, knownUnits = {}, knownNames = [] }: EditRecipeFormProps) {
   const [draft, setDraft] = useState<Draft>(() => {
     const r = JSON.parse(JSON.stringify(recipe)) as RecipeDraft
     return {
@@ -138,6 +139,18 @@ export default function EditRecipeForm({ recipe, onSave, onCancel, knownImages =
     }
   }
 
+  const handleDelete = async () => {
+    if (!draft._id || !onDelete) return
+    if (!confirm(`Delete "${draft.name}"? This cannot be undone.`)) return
+    setStatus('deleting')
+    try {
+      await onDelete(draft._id)
+    } catch {
+      alert('Failed to delete. Please try again.')
+      setStatus('')
+    }
+  }
+
   const busy = status !== ''
   const btnLabel = status === 'saving'
     ? 'Saving...'
@@ -170,6 +183,16 @@ export default function EditRecipeForm({ recipe, onSave, onCancel, knownImages =
           {btnLabel}
         </button>
       </div>
+
+      {draft._id && onDelete && (
+        <button
+          onClick={handleDelete}
+          disabled={busy}
+          className="w-full mb-3 text-sm text-red-400 border border-red-900/60 bg-red-950/30 px-3 py-2 rounded disabled:opacity-40"
+        >
+          {status === 'deleting' ? 'Deleting...' : 'Delete Recipe'}
+        </button>
+      )}
 
       {/* Recipe image */}
       <div className="relative mb-3 group cursor-pointer" onClick={() => !busy && recipeImgRef.current?.click()}>

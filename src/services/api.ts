@@ -20,6 +20,10 @@ export async function updateRecipe(id: string, recipe: RecipeDraft): Promise<Rec
   return data
 }
 
+export async function deleteRecipe(id: string): Promise<void> {
+  await api.delete(`/recipes/${id}`)
+}
+
 export async function fetchIngredients(): Promise<Ingredient[]> {
   const { data } = await api.get('/ingredients')
   return data
