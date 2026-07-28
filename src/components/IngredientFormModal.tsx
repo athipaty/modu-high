@@ -87,8 +87,11 @@ export default function IngredientFormModal({ ingredient, onSave, onDelete, onCa
   const saveLabel = saving ? 'Saving...' : uploading ? 'Uploading...' : 'Save'
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-end justify-center z-50">
-      <div className="bg-white rounded-t-2xl w-full max-w-md p-5 pb-10">
+    <div
+      className="fixed inset-0 bg-black/50 flex items-end justify-center z-50"
+      onClick={() => !busy && onCancel()}
+    >
+      <div className="bg-white rounded-t-2xl w-full max-w-md p-5 pb-10" onClick={(e) => e.stopPropagation()}>
         {/* Header */}
         <div className="flex items-center justify-between mb-4">
           <button onClick={onCancel} disabled={busy} className="text-sm text-gray-500 px-3 py-1 border border-gray-300 rounded disabled:opacity-40">
