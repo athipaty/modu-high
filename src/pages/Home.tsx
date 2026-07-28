@@ -197,10 +197,15 @@ export default function Home() {
     .filter((r) => (lcQuery ? r.name.toLowerCase().includes(lcQuery) : true))
     .sort((a, b) => a.name.localeCompare(b.name))
 
-  /* ---------------------- master ingredient list (name/image/unit lookup) ----------------------
-     Recipes can only use ingredients that already exist on the master Ingredients list — no
-     free-typing new ingredient names, images, or units into a recipe; those are all sourced
-     from the master record and only quantity-used is recipe-specific. */
+  /* ---------------------- known ingredient names (name/image/unit lookup) ----------------------
+     Recipes can only use ingredients that already exist either on the master Ingredients list,
+     OR another existing recipe used as a sub-ingredient/prep item (e.g. "Dipping sauce" as an
+     ingredient of another dish) — no free-typing a brand new name into a recipe. Master
+     ingredients take priority on name collisions. A referenced recipe has no unit of its own,
+     so it defaults to "g" (matches how sub-recipe costing already works: it treats the used
+     quantity as grams and scales against the recipe's own total ingredient weight). */
+  const ingredientKeys = new Set(ingredients.map((ov) => ov.name?.toLowerCase().trim()).filter(Boolean))
+
   const knownImages: Record<string, string> = {}
   const knownUnits: Record<string, string> = {}
   ingredients.forEach((ov) => {
@@ -209,10 +214,24 @@ export default function Home() {
     if (ov.image) knownImages[key] = ov.image
     if (ov.unit) knownUnits[key] = ov.unit
   })
+  recipes.forEach((r) => {
+    const key = r.name?.toLowerCase().trim()
+    if (!key || ingredientKeys.has(key)) return
+    if (r.image) knownImages[key] = r.image
+    knownUnits[key] = 'g'
+  })
 
-  const knownNames = [...ingredients]
-    .map((ov) => ov.name)
-    .sort((a, b) => a.localeCompare(b))
+  const knownNamesSeen = new Set<string>()
+  const knownNames: string[] = []
+  ingredients.forEach((ov) => {
+    const key = ov.name?.toLowerCase().trim()
+    if (key && !knownNamesSeen.has(key)) { knownNamesSeen.add(key); knownNames.push(ov.name) }
+  })
+  recipes.forEach((r) => {
+    const key = r.name?.toLowerCase().trim()
+    if (key && !knownNamesSeen.has(key)) { knownNamesSeen.add(key); knownNames.push(r.name) }
+  })
+  knownNames.sort((a, b) => a.localeCompare(b))
 
   const getPrice = (item: string, qty: number, unit: string) =>
     calculateIngredientPrice({
