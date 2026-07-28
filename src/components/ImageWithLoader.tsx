@@ -31,19 +31,19 @@ export default function ImageWithLoader({
     >
       {/* Skeleton */}
       {!loaded && !error && (
-        <div className="absolute inset-0 bg-gray-200 animate-pulse" />
+        <div className="absolute inset-0 bg-gray-700 animate-pulse" />
       )}
 
       {/* Spinner */}
       {!loaded && !error && (
         <div className="absolute inset-0 flex items-center justify-center">
-          <div className="h-6 w-6 border-2 border-gray-300 border-t-transparent rounded-full animate-spin" />
+          <div className="h-6 w-6 border-2 border-gray-500 border-t-transparent rounded-full animate-spin" />
         </div>
       )}
 
       {/* Error fallback */}
       {error && (
-        <div className="absolute inset-0 flex items-center justify-center text-xs text-gray-600 bg-gray-100">
+        <div className="absolute inset-0 flex items-center justify-center text-xs text-gray-400 bg-gray-700">
           Image unavailable
         </div>
       )}

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import ImageWithLoader from '../components/ImageWithLoader'
-import IngredientFormModal from '../components/IngredientFormModal'
+import IngredientForm from '../components/IngredientForm'
 import { fetchIngredients, createIngredient, updateIngredient, deleteIngredient } from '../services/api'
 import type { Ingredient, IngredientDraft } from '../types/recipe'
 
@@ -41,6 +41,27 @@ export default function IngredientsPage({ query, onImage }: IngredientsPageProps
     setEditing(null)
   }
 
+  if (addMode) {
+    return (
+      <IngredientForm
+        ingredient={null}
+        onSave={handleSave}
+        onCancel={() => setAddMode(false)}
+      />
+    )
+  }
+
+  if (editing) {
+    return (
+      <IngredientForm
+        ingredient={editing}
+        onSave={(draft) => handleSave({ ...draft, _id: editing._id })}
+        onDelete={handleDelete}
+        onCancel={() => setEditing(null)}
+      />
+    )
+  }
+
   const lcQuery = query.toLowerCase().trim()
   const visible = ingredients
     .filter((i) => (lcQuery ? i.name.toLowerCase().includes(lcQuery) : true))
@@ -50,7 +71,7 @@ export default function IngredientsPage({ query, onImage }: IngredientsPageProps
     <div className="animate-fade-slide-in">
       <button
         onClick={() => setAddMode(true)}
-        className="w-full border-2 border-dashed border-gray-300 text-gray-400 py-2 rounded-lg text-sm hover:border-gray-400 hover:text-gray-500 mt-2 mb-3 transition-colors"
+        className="w-full border-2 border-dashed border-gray-600 text-gray-400 py-2 rounded-lg text-sm hover:border-gray-500 hover:text-gray-300 mt-2 mb-3 transition-colors"
       >
         + Add Ingredient
       </button>
@@ -62,11 +83,11 @@ export default function IngredientsPage({ query, onImage }: IngredientsPageProps
           {query ? `No ingredients found for "${query}"` : 'No ingredients yet'}
         </p>
       ) : (
-        <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
+        <div className="bg-gray-800 border border-gray-700 rounded-xl overflow-hidden">
           {visible.map((ing, j) => (
             <div
               key={ing._id}
-              className={`flex items-center gap-3 px-3 py-2 cursor-pointer hover:bg-gray-50 ${j !== 0 ? 'border-t border-gray-50' : ''}`}
+              className={`flex items-center gap-3 px-3 py-2 cursor-pointer hover:bg-gray-700 ${j !== 0 ? 'border-t border-gray-700' : ''}`}
               onClick={() => setEditing(ing)}
             >
               <div onClick={(e) => { if (ing.image) { e.stopPropagation(); onImage(ing.image) } }} className="shrink-0">
@@ -78,34 +99,17 @@ export default function IngredientsPage({ query, onImage }: IngredientsPageProps
                 />
               </div>
               <div className="flex-1 min-w-0">
-                <span className="text-sm text-gray-700">{ing.name}</span>
+                <span className="text-sm text-gray-200">{ing.name}</span>
                 <p className="text-xs text-gray-400 truncate">
                   {ing.qty} {ing.unit}{ing.supplier ? ` · ${ing.supplier}` : ''}
                 </p>
               </div>
-              <span className={`text-xs font-semibold shrink-0 ${ing.price > 0 ? 'text-green-700' : 'text-gray-400'}`}>
+              <span className={`text-xs font-semibold shrink-0 ${ing.price > 0 ? 'text-green-400' : 'text-gray-500'}`}>
                 ${ing.price.toFixed(2)}
               </span>
             </div>
           ))}
         </div>
-      )}
-
-      {addMode && (
-        <IngredientFormModal
-          ingredient={null}
-          onSave={handleSave}
-          onCancel={() => setAddMode(false)}
-        />
-      )}
-
-      {editing && (
-        <IngredientFormModal
-          ingredient={editing}
-          onSave={(draft) => handleSave({ ...draft, _id: editing._id })}
-          onDelete={handleDelete}
-          onCancel={() => setEditing(null)}
-        />
       )}
     </div>
   )

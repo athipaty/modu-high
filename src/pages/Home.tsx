@@ -236,7 +236,7 @@ export default function Home() {
 
   /* ---------------------- render ---------------------- */
   return (
-    <div className="min-h-screen bg-gray-50 p-2 pb-14 flex flex-col items-center overflow-x-hidden">
+    <div className="min-h-screen bg-gray-900 p-2 pb-14 flex flex-col items-center overflow-x-hidden">
       <div className="max-w-md w-full">
         <SearchBar
           query={query}
@@ -289,7 +289,7 @@ export default function Home() {
                 {visibleRecipes.map((recipe, i) => (
                   <div
                     key={recipe._id || recipe.name}
-                    className="grid-card-pop will-change-transform relative flex flex-col items-center bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden hover:shadow-md animate-fade-slide-in cursor-pointer"
+                    className="grid-card-pop will-change-transform relative flex flex-col items-center bg-gray-800 rounded-lg shadow-sm border border-gray-700 overflow-hidden hover:shadow-lg hover:shadow-black/30 animate-fade-slide-in cursor-pointer"
                     style={{ animationDelay: `${i * 40}ms` }}
                     onClick={() => openRecipe(recipe)}
                   >
@@ -303,13 +303,13 @@ export default function Home() {
                         rounded="rounded-none"
                       />
                     ) : (
-                      <div className="w-full aspect-square bg-gray-100 flex items-center justify-center">
+                      <div className="w-full aspect-square bg-gray-700 flex items-center justify-center">
                         <span className="text-[10px] text-gray-400 text-center px-1 leading-tight">
                           Image not available
                         </span>
                       </div>
                     )}
-                    <span className="text-[11px] text-gray-700 font-medium text-center px-1 py-1 leading-tight line-clamp-2">
+                    <span className="text-[11px] text-gray-200 font-medium text-center px-1 py-1 leading-tight line-clamp-2">
                       {recipe.name}
                     </span>
                   </div>
@@ -369,7 +369,7 @@ export default function Home() {
         onNavigate={navigateTo}
       />
 
-      <footer className="fixed bottom-0 inset-x-0 border-t bg-white/90 py-3 text-center text-sm text-gray-600">
+      <footer className="fixed bottom-0 inset-x-0 border-t border-gray-700 bg-gray-800/90 py-3 text-center text-sm text-gray-400">
         Powered by <strong>TingTong</strong>
       </footer>
     </div>

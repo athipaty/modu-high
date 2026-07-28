@@ -139,7 +139,7 @@ export default function EditRecipeForm({ recipe, onSave, onCancel, knownImages =
         <button
           onClick={onCancel}
           disabled={busy}
-          className="text-sm text-gray-500 px-3 py-1 rounded border border-gray-300 disabled:opacity-40"
+          className="text-sm text-gray-400 px-3 py-1 rounded border border-gray-600 disabled:opacity-40"
         >
           Cancel
         </button>
@@ -147,7 +147,7 @@ export default function EditRecipeForm({ recipe, onSave, onCancel, knownImages =
           value={draft.name}
           onChange={(e) => updateField('name', e.target.value)}
           autoComplete="off"
-          className="flex-1 text-xl font-bold text-center border-b-2 border-green-400 bg-transparent outline-none"
+          className="flex-1 text-xl font-bold text-center text-gray-100 border-b-2 border-green-400 bg-transparent outline-none"
         />
         <button
           onClick={handleSave}
@@ -167,7 +167,7 @@ export default function EditRecipeForm({ recipe, onSave, onCancel, knownImages =
             className="w-full h-48 object-cover rounded-lg"
           />
         ) : (
-          <div className="w-full h-48 bg-gray-100 rounded-lg flex items-center justify-center text-gray-400 text-sm">
+          <div className="w-full h-48 bg-gray-700 rounded-lg flex items-center justify-center text-gray-400 text-sm">
             No image
           </div>
         )}
@@ -184,21 +184,21 @@ export default function EditRecipeForm({ recipe, onSave, onCancel, knownImages =
       </div>
 
       {/* Ingredients table */}
-      <table className="w-full border border-gray-200 rounded-lg overflow-hidden bg-white mb-3 text-sm">
+      <table className="w-full border border-gray-700 rounded-lg overflow-hidden bg-gray-800 mb-3 text-sm">
         <thead>
-          <tr className="bg-gray-100 text-xs">
-            <th className="px-2 py-2 border text-left w-14">Img</th>
-            <th className="px-2 py-2 border text-left">Ingredient</th>
-            <th className="px-2 py-2 border text-center w-16">Qty</th>
-            <th className="px-2 py-2 border text-center w-10">Unit</th>
-            <th className="px-2 py-2 border w-6"></th>
+          <tr className="bg-gray-700 text-xs">
+            <th className="px-2 py-2 border border-gray-600 text-left w-14 text-gray-200">Img</th>
+            <th className="px-2 py-2 border border-gray-600 text-left text-gray-200">Ingredient</th>
+            <th className="px-2 py-2 border border-gray-600 text-center w-16 text-gray-200">Qty</th>
+            <th className="px-2 py-2 border border-gray-600 text-center w-10 text-gray-200">Unit</th>
+            <th className="px-2 py-2 border border-gray-600 w-6"></th>
           </tr>
         </thead>
         <tbody>
           {draft.ingredients.map((ing, i) => (
-            <tr key={i} className="odd:bg-white even:bg-gray-50">
+            <tr key={i} className="odd:bg-gray-800 even:bg-gray-800/60">
               {/* Ingredient image */}
-              <td className="border px-1 py-1">
+              <td className="border border-gray-700 px-1 py-1">
                 <div
                   className="relative w-12 h-12 cursor-pointer group/img"
                   onClick={() => !busy && ingImgRefs.current[i]?.click()}
@@ -210,7 +210,7 @@ export default function EditRecipeForm({ recipe, onSave, onCancel, knownImages =
                       className="w-12 h-12 object-cover rounded"
                     />
                   ) : (
-                    <div className="w-12 h-12 bg-gray-100 rounded flex items-center justify-center text-gray-300 text-lg">
+                    <div className="w-12 h-12 bg-gray-700 rounded flex items-center justify-center text-gray-400 text-lg">
                       📷
                     </div>
                   )}
@@ -228,42 +228,42 @@ export default function EditRecipeForm({ recipe, onSave, onCancel, knownImages =
               </td>
 
               {/* Item name */}
-              <td className="border px-1 py-1">
+              <td className="border border-gray-700 px-1 py-1">
                 <input
                   value={ing.item}
                   onChange={(e) => updateIng(i, 'item', e.target.value)}
                   onBlur={() => onIngNameBlur(i)}
                   autoComplete="off"
                   list="known-ingredient-names"
-                  className="w-full border border-gray-300 rounded px-1 py-0.5 text-sm focus:ring-1 focus:ring-green-400 outline-none"
+                  className="w-full border border-gray-600 bg-gray-900 text-gray-100 rounded px-1 py-0.5 text-sm focus:ring-1 focus:ring-green-400 outline-none"
                 />
               </td>
 
               {/* Qty */}
-              <td className="border px-1 py-1">
+              <td className="border border-gray-700 px-1 py-1">
                 <input
                   type="number"
                   value={ing.quantity}
                   onChange={(e) => updateIng(i, 'quantity', e.target.value)}
-                  className="w-full border border-gray-300 rounded px-1 py-0.5 text-sm text-center focus:ring-1 focus:ring-green-400 outline-none"
+                  className="w-full border border-gray-600 bg-gray-900 text-gray-100 rounded px-1 py-0.5 text-sm text-center focus:ring-1 focus:ring-green-400 outline-none"
                 />
               </td>
 
               {/* Unit */}
-              <td className="border px-1 py-1">
+              <td className="border border-gray-700 px-1 py-1">
                 <input
                   value={ing.unit}
                   onChange={(e) => updateIng(i, 'unit', e.target.value)}
                   autoComplete="off"
-                  className="w-full border border-gray-300 rounded px-1 py-0.5 text-xs text-center focus:ring-1 focus:ring-green-400 outline-none"
+                  className="w-full border border-gray-600 bg-gray-900 text-gray-100 rounded px-1 py-0.5 text-xs text-center focus:ring-1 focus:ring-green-400 outline-none"
                 />
               </td>
 
               {/* Delete */}
-              <td className="border px-1 py-1 text-center">
+              <td className="border border-gray-700 px-1 py-1 text-center">
                 <button
                   onClick={() => removeIng(i)}
-                  className="text-red-400 hover:text-red-600 text-xl leading-none"
+                  className="text-red-400 hover:text-red-300 text-xl leading-none"
                 >
                   ×
                 </button>
@@ -279,19 +279,19 @@ export default function EditRecipeForm({ recipe, onSave, onCancel, knownImages =
 
       <button
         onClick={addIng}
-        className="w-full border-2 border-dashed border-gray-300 text-gray-400 py-2 rounded-lg text-sm hover:border-gray-400 hover:text-gray-500 mb-3 transition-colors"
+        className="w-full border-2 border-dashed border-gray-600 text-gray-400 py-2 rounded-lg text-sm hover:border-gray-500 hover:text-gray-300 mb-3 transition-colors"
       >
         + Add Ingredient
       </button>
 
       {/* Method */}
-      <div className="bg-white border border-gray-200 rounded-lg p-4">
-        <h3 className="text-sm font-semibold mb-2 text-gray-700">Method</h3>
+      <div className="bg-gray-800 border border-gray-700 rounded-lg p-4">
+        <h3 className="text-sm font-semibold mb-2 text-gray-200">Method</h3>
         <textarea
           value={draft.method || ''}
           onChange={(e) => updateField('method', e.target.value)}
           rows={6}
-          className="w-full border border-gray-300 rounded px-2 py-1 text-sm text-gray-700 resize-y focus:outline-none focus:ring-1 focus:ring-green-400"
+          className="w-full border border-gray-600 bg-gray-900 rounded px-2 py-1 text-sm text-gray-100 resize-y focus:outline-none focus:ring-1 focus:ring-green-400"
         />
       </div>
     </div>
