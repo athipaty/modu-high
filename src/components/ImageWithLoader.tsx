@@ -32,7 +32,7 @@ export default function ImageWithLoader({
         role={onClick ? 'button' : undefined}
         aria-label={onClick ? `Open ${alt}` : undefined}
       >
-        <span className="text-gray-500 text-xs">No image</span>
+        <span className="text-gray-500 text-xs text-center px-1">No image</span>
       </div>
     )
   }
