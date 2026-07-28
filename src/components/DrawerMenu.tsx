@@ -45,7 +45,7 @@ export default function DrawerMenu({ open, onClose, currentView, onNavigate }: D
         </nav>
       </div>
       {/* Overlay */}
-      <div className="flex-1 bg-black/40" onClick={onClose} />
+      <div className="flex-1 bg-black/40 cursor-pointer" onClick={onClose} />
     </div>
   )
 }

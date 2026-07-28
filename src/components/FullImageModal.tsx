@@ -8,7 +8,7 @@ interface FullImageModalProps {
 export default function FullImageModal({ src, onClose }: FullImageModalProps) {
   return (
     <div
-      className="fixed inset-0 bg-black/80 flex items-center justify-center animate-fade-in"
+      className="fixed inset-0 bg-black/80 flex items-center justify-center animate-fade-in cursor-pointer"
       onClick={onClose}
     >
       <div className="animate-scale-up">

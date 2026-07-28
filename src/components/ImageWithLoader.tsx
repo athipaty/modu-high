@@ -27,7 +27,7 @@ export default function ImageWithLoader({
   if (!src) {
     return (
       <div
-        className={`relative overflow-hidden ${rounded} ${wrapperClass} bg-gray-700 flex items-center justify-center`}
+        className={`relative overflow-hidden ${rounded} ${wrapperClass} bg-gray-700 flex items-center justify-center ${onClick ? 'cursor-pointer' : ''}`}
         onClick={onClick}
         role={onClick ? 'button' : undefined}
         aria-label={onClick ? `Open ${alt}` : undefined}
@@ -39,7 +39,7 @@ export default function ImageWithLoader({
 
   return (
     <div
-      className={`relative overflow-hidden ${rounded} ${wrapperClass}`}
+      className={`relative overflow-hidden ${rounded} ${wrapperClass} ${onClick ? 'cursor-pointer' : ''}`}
       onClick={onClick}
       role={onClick ? 'button' : undefined}
       aria-label={onClick ? `Open ${alt}` : undefined}
