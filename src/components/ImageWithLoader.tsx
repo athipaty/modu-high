@@ -22,6 +22,21 @@ export default function ImageWithLoader({
   const [loaded, setLoaded] = useState(false)
   const [error, setError] = useState(false)
 
+  // An empty src (no image uploaded yet) never fires the <img> load/error events reliably,
+  // which left the loading spinner spinning forever — show a plain "no image" state instead.
+  if (!src) {
+    return (
+      <div
+        className={`relative overflow-hidden ${rounded} ${wrapperClass} bg-gray-700 flex items-center justify-center`}
+        onClick={onClick}
+        role={onClick ? 'button' : undefined}
+        aria-label={onClick ? `Open ${alt}` : undefined}
+      >
+        <span className="text-gray-500 text-xs">No image</span>
+      </div>
+    )
+  }
+
   return (
     <div
       className={`relative overflow-hidden ${rounded} ${wrapperClass}`}
