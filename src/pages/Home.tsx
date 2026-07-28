@@ -8,7 +8,6 @@ import ImageWithLoader from '../components/ImageWithLoader'
 import DrawerMenu, { type ViewId } from '../components/DrawerMenu'
 import InventoryList from '../components/InventoryList'
 import IngredientEditModal from '../components/IngredientEditModal'
-import StandingOrders from './StandingOrders'
 
 import { fmt, valid, strip0 } from '../utils/format'
 import { calculateIngredientPrice } from '../utils/priceResolver'
@@ -278,9 +277,6 @@ export default function Home() {
             onSaveIngredient={onSaveIngredient}
           />
         )}
-
-        {/* Standing orders view */}
-        {currentView === 'standingOrders' && <StandingOrders />}
 
         {/* Add new recipe form */}
         {currentView === 'recipes' && addMode && (
