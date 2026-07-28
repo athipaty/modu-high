@@ -161,23 +161,6 @@ export default function Home() {
     setAddMode(false)
   }
 
-  /* ---------------------- toggle active ---------------------- */
-  const toggleActive = async (recipe: Recipe) => {
-    const newActive = !recipe.active
-    const optimistic = { ...recipe, active: newActive }
-    setRecipes((prev) => prev.map((r) => (r._id === recipe._id ? optimistic : r)))
-    if (selectedRecipe?._id === recipe._id) setSelectedRecipe(optimistic)
-    try {
-      const updated = await updateRecipe(recipe._id, optimistic)
-      const final = { ...updated, active: updated.active ?? newActive }
-      setRecipes((prev) => prev.map((r) => (r._id === final._id ? final : r)))
-      if (selectedRecipe?._id === final._id) setSelectedRecipe(final)
-    } catch {
-      setRecipes((prev) => prev.map((r) => (r._id === recipe._id ? recipe : r)))
-      if (selectedRecipe?._id === recipe._id) setSelectedRecipe(recipe)
-    }
-  }
-
   /* ---------------------- edit / add ---------------------- */
   const saveRecipe = async (draft: RecipeDraft) => {
     if (draft._id) {
@@ -301,7 +284,7 @@ export default function Home() {
         {/* Add new recipe form */}
         {currentView === 'recipes' && addMode && (
           <EditRecipeForm
-            recipe={{ name: '', image: '', ingredients: [], method: '', active: false }}
+            recipe={{ name: '', image: '', ingredients: [], method: '' }}
             onSave={saveRecipe}
             onCancel={() => setAddMode(false)}
             knownImages={knownImages}
@@ -388,8 +371,6 @@ export default function Home() {
                 onQtyBlur={onQtyBlur}
                 onOpenRecipe={openRecipe}
                 onImage={setFullImage}
-                isActive={!!selectedRecipe.active}
-                onToggleActive={() => toggleActive(selectedRecipe)}
                 allRecipes={recipes}
                 getPrice={getPrice}
               />

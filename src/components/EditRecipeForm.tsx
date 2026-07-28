@@ -16,7 +16,6 @@ interface Draft {
   image: string
   ingredients: DraftIngredient[]
   method: string
-  active: boolean
 }
 
 interface EditRecipeFormProps {

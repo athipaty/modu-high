@@ -11,7 +11,6 @@ export interface Recipe {
   image: string
   ingredients: RecipeIngredient[]
   method: string
-  active: boolean
   createdAt?: string
   updatedAt?: string
 }

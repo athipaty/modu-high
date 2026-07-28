@@ -8,8 +8,6 @@ interface RecipeDetailProps {
   onQtyBlur: (item: string) => void
   onOpenRecipe: (recipe: Recipe) => void
   onImage: (url: string) => void
-  isActive: boolean
-  onToggleActive?: () => void
   getPrice: (itemName: string, qty: number, unit: string) => number
   allRecipes?: Recipe[]
 }
@@ -21,8 +19,6 @@ export default function RecipeDetail({
   onQtyBlur,
   onOpenRecipe,
   onImage,
-  isActive,
-  onToggleActive,
   getPrice,
   allRecipes = [],
 }: RecipeDetailProps) {
@@ -45,21 +41,6 @@ export default function RecipeDetail({
     <>
       <div className="flex items-center justify-center gap-3 mb-3 animate-fade-slide-in">
         <h2 className="text-2xl font-bold text-center text-gray-100">{recipe.name}</h2>
-        {onToggleActive && (
-          <button
-            onClick={onToggleActive}
-            className={`flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold border transition-colors ${
-              isActive
-                ? 'bg-green-900/40 text-green-400 border-green-700'
-                : 'bg-gray-800 text-gray-500 border-gray-600'
-            }`}
-          >
-            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-            </svg>
-            {isActive ? 'On Menu' : 'Off Menu'}
-          </button>
-        )}
       </div>
 
       {!hasIngredients ? (
