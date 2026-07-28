@@ -47,7 +47,6 @@ export default function Login() {
 
           <form onSubmit={handleSubmit} className="px-8 py-8 space-y-5">
             <div>
-              <label className="block text-sm font-medium text-gray-300 mb-2">Password</label>
               <div className="relative">
                 <input
                   type={showPwd ? 'text' : 'password'}
