@@ -41,7 +41,7 @@ export default function Login() {
             />
             <div className="mt-4 text-center">
               <div className="text-white font-bold text-lg tracking-wide">MODU HIGH</div>
-              <div className="text-slate-400 text-xs mt-0.5">Recipe &amp; Inventory System</div>
+              <div className="text-slate-400 text-xs mt-0.5">Ingredient &amp; Recipe Manager</div>
             </div>
           </div>
 
